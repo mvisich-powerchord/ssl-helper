@@ -21,7 +21,7 @@ spec:
         - |
           apk add --no-cache git
           git clone https://github.com/mvisich-powerchord/ssl-helper.git
-          cd k8s-ssl-updater
+          cd ssl-helper
           chmod +x alpine_setup.sh
           ./alpine_setup.sh
         resources:
