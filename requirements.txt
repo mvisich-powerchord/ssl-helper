@@ -1,3 +1,4 @@
 click
 click-web
 kubernetes
+google-cloud-storage
