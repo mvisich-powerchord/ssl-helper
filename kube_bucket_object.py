@@ -12,7 +12,7 @@ def load_config():
 
 
 @click.command()
-@click.option('--namespace', prompt='Select a namespace', type=click.Choice(['all-namespaces'] + get_namespaces()), default='all-namespaces')
+#@click.option('--namespace', prompt='Select a namespace', type=click.Choice(['all-namespaces'] + get_namespaces()), default='all-namespaces')
 def list_secrets(namespace):
     'Bucket Name'
     v1 = client.CoreV1Api()
