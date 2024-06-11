@@ -1,6 +1,7 @@
 import click
 import json
 import os
+import base64
 from kubernetes import client, config
 from datetime import datetime
 
