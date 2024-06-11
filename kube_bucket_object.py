@@ -2,6 +2,7 @@ import click
 import json
 import os
 import base64
+import sys
 from kubernetes import client, config
 from datetime import datetime
 
