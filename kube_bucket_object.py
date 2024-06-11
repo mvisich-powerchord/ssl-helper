@@ -19,7 +19,7 @@ def get_bucket():
     v1 = client.CoreV1Api()
     sec = v1.read_namespaced_secret("ssl-helper-bucket-name", "k8s-ssl-updater")
     #secret_base64 = base64.b64decode(sec.strip().split()[1].translate(None, '}\''))
-    secret_base64 = base64.b64decode(sec["ca.crt"])
+    secret_base64 = base64.b64decode(sec["ssl-helper-bucket-name"])
     print(secret_base64)
 
 if __name__ == '__main__':
