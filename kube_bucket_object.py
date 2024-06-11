@@ -17,10 +17,23 @@ def load_config():
 def get_bucket():
     'Bucket Name'
     v1 = client.CoreV1Api()
-    sec = v1.read_namespaced_secret("ssl-helper-bucket-name", "k8s-ssl-updater")
+    secret = v1.read_namespaced_secret("ssl-helper-bucket-name", "k8s-ssl-updater")
+
+
+    data = secret.data # extract .data from the secret 
+    ssl-helper-bucket-name = secret.data['ssl-helper-bucket-name'] # extract .data.password from the secret
+
+    decoded = base64.b64decode(ssl-helper-bucket-name) # decode (base64) value from pasw
+
+    print(decoded)
+
+
+
+
+
     #secret_base64 = base64.b64decode(sec.strip().split()[1].translate(None, '}\''))
-    secret_base64 = base64.b64decode(sec["ssl-helper-bucket-name"])
-    print(secret_base64)
+    #secret_base64 = base64.b64decode(sec["ssl-helper-bucket-name"])
+    #print(secret_base64)
 
 if __name__ == '__main__':
     list_secrets()
