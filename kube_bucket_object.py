@@ -25,12 +25,18 @@ def get_bucket_name():
 def list_objects(bucketname):
     from google.cloud import storage
     client = storage.Client()
-    for blob in client.list_blobs(bucketname, prefix="ssl-certs"):
-      print(str(blob))
+    bucket = client.bucket(bucketname)
+ 
+    for obj in bucket.list_objects():
+        print(obj)
+
+    #for blob in client.list_blobs(bucketname, prefix="ssl-certs"):
+     # print(str(blob))
 
 
 @click.command()
-def get_objects():
+#@click.option('--cert-file', prompt='Select a cert', type=click.Choice(['none'] + get_namespaces()), default='all-namespaces')
+def cert_bucket():
     bucketname = get_bucket_name()
     print ("Bucket Name")
     print(bucketname)
