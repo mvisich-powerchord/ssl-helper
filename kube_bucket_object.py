@@ -27,11 +27,14 @@ def get_bucket():
     print(bucketname)
     decoded = base64.b64decode(bucketname) # decode (base64) value from pasw
     
-    print(decoded.decode('utf-8'))
+    decodedv2 = print(decoded.decode('utf-8'))
 
+    from google.cloud import storage
+    client = storage.Client()
+    for blob in client.list_blobs(decodedv2, prefix="ssl-certs"):
+    print(str(blob))
 
-
-
+  
 
     #secret_base64 = base64.b64decode(sec.strip().split()[1].translate(None, '}\''))
     #secret_base64 = base64.b64decode(sec["ssl-helper-bucket-name"])
