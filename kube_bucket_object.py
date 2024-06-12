@@ -23,15 +23,18 @@ def get_bucket_name():
     return decodedv2
 
 def list_objects(bucketname):
-    from google.cloud import storage
-    client = storage.Client()
-    bucket = client.bucket(bucketname)
- 
-    for obj in bucket.list_objects():
-        print(obj)
+    """Lists all the blobs in the bucket."""
+    # bucket_name = "your-bucket-name"
 
-    #for blob in client.list_blobs(bucketname, prefix="ssl-certs"):
-     # print(str(blob))
+    storage_client = storage.Client()
+
+    # Note: Client.list_blobs requires at least package version 1.17.0.
+    blobs = storage_client.list_blobs(bucketname)
+
+    # Note: The call returns a response only when the iterator is consumed.
+    for blob in blobs:
+        print(blob.name)
+    
 
 
 @click.command()
