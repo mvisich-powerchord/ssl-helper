@@ -22,11 +22,19 @@ def get_bucket_name():
     decodedv2 = decoded.decode('utf-8')
     return decodedv2
 
+def list_objects(bucketname)
+    from google.cloud import storage
+    client = storage.Client()
+    for blob in client.list_blobs(bucketname, prefix="ssl-certs"):
+      print(str(blob))
+
+
 @click.command()
 def get_objects():
     bucketname = get_bucket_name()
     print ("Bucket Name")
     print(bucketname)
+    list_objects(bucketname)
 
 #if __name__ == '__main__':
 #    get_objects()
