@@ -18,11 +18,13 @@ def get_bucket():
     'Bucket Name'
     v1 = client.CoreV1Api()
     secret = v1.read_namespaced_secret("ssl-helper-bucket-name", "k8s-ssl-updater")
+    print(secret)
 
 
     data = secret.data # extract .data from the secret 
+    print(data)
     bucketname = secret.data['ssl-helper-bucket-name'] # extract .data.password from the secret
-
+    print(bucketname)
     decoded = base64.b64decode(bucketname) # decode (base64) value from pasw
 
     print(decoded)
