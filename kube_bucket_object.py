@@ -26,7 +26,7 @@ def list_objects(bucketname):
     from google.cloud import storage
     client = storage.Client()
 
-    for blob in client.list_blobs(bucketname, prefix="ssl-certs"):
+    for blob in client.list_blobs(bucketname, prefix="ssl-certs/"):
       print(str(blob.name))
 
 
