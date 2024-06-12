@@ -26,8 +26,8 @@ def get_bucket():
     bucketname = secret.data['ssl-helper-bucket-name'] # extract .data.password from the secret
     print(bucketname)
     decoded = base64.b64decode(bucketname) # decode (base64) value from pasw
-
-    print(decoded)
+    
+    print(decoded.decode('utf-8'))
 
 
 
