@@ -32,7 +32,7 @@ def get_bucket():
     from google.cloud import storage
     client = storage.Client()
     for blob in client.list_blobs(decodedv2, prefix="ssl-certs"):
-    print(str(blob))
+      print(str(blob))
 
   
 
