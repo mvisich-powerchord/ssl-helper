@@ -19,8 +19,8 @@ def get_bucket_name():
     data = secret.data # extract .data from the secret 
     bucketname = secret.data['ssl-helper-bucket-name'] # extract .data.password from the secret
     decoded = base64.b64decode(bucketname) # decode (base64) value from pasw
-    decodedv2 = print(decoded.decode('utf-8'))
-    return decoded
+    decodedv2 = decoded.decode('utf-8')
+    return decodedv2
 
 @click.command()
 def get_objects():
@@ -28,5 +28,5 @@ def get_objects():
     print ("Bucket Name")
     print(bucketname)
 
-if __name__ == '__main__':
-    get_objects()
+#if __name__ == '__main__':
+#    get_objects()
