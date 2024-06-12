@@ -12,33 +12,20 @@ def load_config():
     except:
         config.load_kube_config()
 
-
-@click.command()
-def get_bucket():
-    'Bucket Name'
+def get_bucket_name():
+    'Get Bucket Name'
     v1 = client.CoreV1Api()
     secret = v1.read_namespaced_secret("ssl-helper-bucket-name", "k8s-ssl-updater")
-    print(secret)
-
-
     data = secret.data # extract .data from the secret 
-    print(data)
     bucketname = secret.data['ssl-helper-bucket-name'] # extract .data.password from the secret
-    print(bucketname)
     decoded = base64.b64decode(bucketname) # decode (base64) value from pasw
-    
     decodedv2 = print(decoded.decode('utf-8'))
+    return decodedv2
 
-    from google.cloud import storage
-    client = storage.Client()
-    for blob in client.list_blobs(decodedv2, prefix="ssl-certs"):
-      print(str(blob))
-
-  
-
-    #secret_base64 = base64.b64decode(sec.strip().split()[1].translate(None, '}\''))
-    #secret_base64 = base64.b64decode(sec["ssl-helper-bucket-name"])
-    #print(secret_base64)
-
+@click.command()
+def get_objects():
+    bucketname = get_bucket_name()
+    print(bucketname)
+    
 if __name__ == '__main__':
-    list_secrets()
+    get_objects()
