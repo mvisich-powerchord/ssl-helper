@@ -20,7 +20,7 @@ def get_bucket_name():
     bucketname = secret.data['ssl-helper-bucket-name'] # extract .data.password from the secret
     decoded = base64.b64decode(bucketname) # decode (base64) value from pasw
     decodedv2 = print(decoded.decode('utf-8'))
-    return decodedv2
+    return decoded
 
 @click.command()
 def get_objects():
