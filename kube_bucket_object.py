@@ -25,7 +25,8 @@ def get_bucket_name():
 @click.command()
 def get_objects():
     bucketname = get_bucket_name()
+    print ("Bucket Name")
     print(bucketname)
-    
+
 if __name__ == '__main__':
     get_objects()
