@@ -25,12 +25,14 @@ def get_bucket_name():
 def list_objects(bucketname):
     from google.cloud import storage
     client = storage.Client()
-
+    ssl_list = []
     for blob in client.list_blobs(bucketname, prefix='ssl-certs/', delimiter='/'):
       folder, file = blob.name.split('/')
       if file ==  "":
         continue
-      print(str(file))
+      ssl_list.append(file)
+    for x in ssl_list:
+      print(x)
 
 
 @click.command()
