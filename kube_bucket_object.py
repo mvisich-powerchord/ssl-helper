@@ -28,6 +28,8 @@ def list_objects(bucketname):
 
     for blob in client.list_blobs(bucketname, prefix='ssl-certs/', delimiter='/'):
       folder, file = blob.name.split('/')
+      if file ==  null:
+        continue
       print(str(file))
 
 
