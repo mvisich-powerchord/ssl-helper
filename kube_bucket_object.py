@@ -27,7 +27,8 @@ def list_objects(bucketname):
     client = storage.Client()
 
     for blob in client.list_blobs(bucketname, prefix='ssl-certs/', delimiter='/'):
-      print(str(blob.name))
+      folder, file = blob.name.split('/')
+      print(str(file))
 
 
 @click.command()
