@@ -33,12 +33,13 @@ def list_objects(bucketname):
       ssl_list.append(file)
     return ssl_list
 
-
-@click.command()
-@click.option('--cert-file', prompt='Select a cert', type=click.Choice(['none'] + cert_bucket()), default='none')
 def cert_bucket():
     bucketname = get_bucket_name()
     list_objects(bucketname)
+    
+@click.command()
+@click.option('--cert-file', prompt='Select a cert', type=click.Choice(['none'] + cert_bucket()), default='none')
+
 
 #if __name__ == '__main__':
 #    get_objects()
