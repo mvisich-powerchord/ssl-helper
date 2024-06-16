@@ -36,9 +36,9 @@ def list_objects(bucketname):
 def cert_bucket():
     bucketname = get_bucket_name()
     list_objects(bucketname)
-    
+
 @click.command()
-@click.option('--cert-file', prompt='Select a cert', type=click.Choice(['none'] + cert_bucket()), default='none')
+#@click.option('--cert-file', prompt='Select a cert', type=click.Choice(['none'] + cert_bucket()), default='none')
 
 
 #if __name__ == '__main__':
