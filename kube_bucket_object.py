@@ -33,6 +33,7 @@ def list_objects(bucketname):
       ssl_list.append(file)
     for x in ssl_list:
       print(x)
+    return ssl_list
 
 
 @click.command()
@@ -41,7 +42,7 @@ def cert_bucket():
     bucketname = get_bucket_name()
     print ("Bucket Name")
     print(bucketname)
-    list_objects(bucketname)
+    ssl_list = list_objects(bucketname)
 
 #if __name__ == '__main__':
 #    get_objects()
