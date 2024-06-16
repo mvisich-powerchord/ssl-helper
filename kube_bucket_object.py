@@ -31,15 +31,17 @@ def list_objects(bucketname):
       if file ==  "":
         continue
       ssl_list.append(file)
-    return ssl_list
+    for x in ssl_list:
+      print(x)
 
-def cert_bucket():
-    bucketname = get_bucket_name()
-    list_objects(bucketname)
 
 @click.command()
-#@click.option('--cert-file', prompt='Select a cert', type=click.Choice(['none'] + cert_bucket()), default='none')
-
+#@click.option('--cert-file', prompt='Select a cert', type=click.Choice(['all-namespaces'] + get_namespaces()), default='all-namespaces')
+def cert_bucket():
+    bucketname = get_bucket_name()
+    print ("Bucket Name")
+    print(bucketname)
+    list_objects(bucketname)
 
 #if __name__ == '__main__':
 #    get_objects()
