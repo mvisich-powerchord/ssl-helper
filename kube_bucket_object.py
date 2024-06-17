@@ -50,8 +50,8 @@ def list_objects(bucketname):
 def cert_bucket():
     global bucketname
     bucketname = get_bucket_name()
-    global projectid
-    projectid = get_projectid()
+    #global projectid
+    #projectid = get_projectid()
     print ("Bucket Name")
     print(bucketname)
     ssl_list = list_objects(bucketname)
@@ -77,7 +77,7 @@ def download_blob(bucket_name, source_blob_name, destination_file_name):
 @click.option('--certfile', prompt='Select SSL File', type=click.Choice(['none'] + cert_bucket()), default='none')
 def cert_helper(certfile):
     print(f"Listing secrets in namespace {certfile}:")
-    download_blob(bucketname,'ssl-certs/{certfile}',certfile)
+    download_blob(bucketname,"ssl-certs/{certfile}", certfile)
 
 
 
