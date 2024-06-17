@@ -6,6 +6,7 @@ import sys
 import logging
 from kubernetes import client, config
 from datetime import datetime
+from google.cloud import storage
 
 def load_config():
     try:
@@ -34,7 +35,7 @@ def get_projectid():
     return decodedv2
 
 def list_objects(bucketname):
-    from google.cloud import storage
+    #from google.cloud import storage
     client = storage.Client()
     ssl_list = []
     for blob in client.list_blobs(bucketname, prefix='ssl-certs/', delimiter='/'):
@@ -56,13 +57,39 @@ def cert_bucket():
     ssl_list = list_objects(bucketname)
     return ssl_list
 
+def download_blob(bucket_name, source_blob_name, destination_file_name):
+    """Downloads a blob from the bucket."""
+    # Initialize a client
+    storage_client = storage.Client()
+
+    # Get the bucket
+    bucket = storage_client.bucket(bucket_name)
+
+    # Get the blob
+    blob = bucket.blob(source_blob_name)
+
+    # Download the blob to a file
+    blob.download_to_filename(destination_file_name)
+
+    print(f"Blob {source_blob_name} downloaded to {destination_file_name}.")
+
 @click.command()
 @click.option('--certfile', prompt='Select SSL File', type=click.Choice(['none'] + cert_bucket()), default='none')
 def cert_helper(certfile):
     print(f"Listing secrets in namespace {certfile}:")
-    print(bucketname)
-    print(projectid)
-    print ("here in cert helper")
+    download_blob(bucketname,'ssl-certs/{certfile}',certfile)
+
+
+
+
+
+
+
+
+
+
+
+
 
 #if __name__ == '__main__':
 #    cert_helper()
