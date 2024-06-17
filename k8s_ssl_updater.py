@@ -12,7 +12,7 @@ def cli():
 cli.add_command(list_secrets, name='list-secrets')
 cli.add_command(update_secret, name='update-secret')
 cli.add_command(check_file, name='check-file')
-cli.add_command(cert_helper, name='cert_helper')
+cli.add_command(cert_helper, name='cert-helper')
 
 if __name__ == '__main__':
     cli()
