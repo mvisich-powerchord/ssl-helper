@@ -38,18 +38,17 @@ def list_objects(bucketname):
 
 def cert_bucket():
     bucketname = get_bucket_name()
+    print ("Bucket Name")
+    print(bucketname)
     ssl_list = list_objects(bucketname)
     return ssl_list
 
 @click.command()
 @click.option('--certfile', prompt='Select SSL File', type=click.Choice(['none'] + cert_bucket()), default='none')
 def cert_helper(certfile):
-    print(f"getting cert file from gcp bucket {certfile}")
+    print(f"Listing secrets in namespace {certfile}:")
 
-
-
-
-
+    print ("here in cert helper")
 
 #if __name__ == '__main__':
 #    cert_helper()
