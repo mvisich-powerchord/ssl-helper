@@ -23,6 +23,16 @@ def get_bucket_name():
     decodedv2 = decoded.decode('utf-8')
     return decodedv2
 
+def get_projectid():
+    'Get Project ID'
+    v1 = client.CoreV1Api()
+    secret = v1.read_namespaced_secret("ssl-helper-bucket-project-id", "k8s-ssl-updater")
+    data = secret.data # extract .data from the secret 
+    projectid = secret.data['ssl-helper-bucket-project-id'] # extract .data.password from the secret
+    decoded = base64.b64decode(projectid) # decode (base64) value from pasw
+    decodedv2 = decoded.decode('utf-8')
+    return decodedv2
+
 def list_objects(bucketname):
     from google.cloud import storage
     client = storage.Client()
@@ -38,6 +48,7 @@ def list_objects(bucketname):
 
 def cert_bucket():
     bucketname = get_bucket_name()
+    projectid = get_projectid()
     print ("Bucket Name")
     print(bucketname)
     ssl_list = list_objects(bucketname)
@@ -47,6 +58,8 @@ def cert_bucket():
 @click.option('--certfile', prompt='Select SSL File', type=click.Choice(['none'] + cert_bucket()), default='none')
 def cert_helper(certfile):
     print(f"Listing secrets in namespace {certfile}:")
+    print(bucketname)
+    print(projectid)
     print ("here in cert helper")
 
 #if __name__ == '__main__':
