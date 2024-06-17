@@ -43,9 +43,9 @@ def cert_bucket():
     return ssl_list
 
 @click.command()
-@click.option('--cert-file', prompt='Select SSL File', type=click.Choice(['none'] + cert_bucket()), default='none')
-def cert_helper(cert-file):
-    print(f"Listing secrets in namespace {cert-file}:")
+@click.option('--certfile', prompt='Select SSL File', type=click.Choice(['none'] + cert_bucket()), default='none')
+def cert_helper(certfile):
+    print(f"Listing secrets in namespace {certfile}:")
     print ("here in cert helper")
 
 if __name__ == '__main__':
