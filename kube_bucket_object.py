@@ -47,7 +47,9 @@ def list_objects(bucketname):
     return ssl_list
 
 def cert_bucket():
+    global bucketname
     bucketname = get_bucket_name()
+    global projectid
     projectid = get_projectid()
     print ("Bucket Name")
     print(bucketname)
