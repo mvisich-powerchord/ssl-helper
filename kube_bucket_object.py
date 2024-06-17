@@ -35,14 +35,17 @@ def list_objects(bucketname):
       print(x)
     return ssl_list
 
-
-@click.command()
-#@click.option('--cert-file', prompt='Select a cert', type=click.Choice(['all-namespaces'] + get_namespaces()), default='all-namespaces')
 def cert_bucket():
     bucketname = get_bucket_name()
     print ("Bucket Name")
     print(bucketname)
     ssl_list = list_objects(bucketname)
+    return ssl_list
 
-#if __name__ == '__main__':
-#    get_objects()
+@click.command()
+@click.option('--cert-file', prompt='Select SSL File', type=click.Choice(['none'] + cert_bucket()), default='none')
+def cert_helper():
+  echo "here"
+
+if __name__ == '__main__':
+    cert_helper()
