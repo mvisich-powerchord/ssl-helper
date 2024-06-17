@@ -45,7 +45,7 @@ def cert_bucket():
 @click.command()
 @click.option('--cert-file', prompt='Select SSL File', type=click.Choice(['none'] + cert_bucket()), default='none')
 def cert_helper():
-  print ("here in cert helper")
+    print ("here in cert helper")
 
 if __name__ == '__main__':
     cert_helper()
