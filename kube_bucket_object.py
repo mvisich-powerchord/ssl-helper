@@ -15,7 +15,6 @@ def load_config():
 
 def get_bucket_name():
     'Get Bucket Name'
-    logging.debug('in get_bucket_name')
     v1 = client.CoreV1Api()
     secret = v1.read_namespaced_secret("ssl-helper-bucket-name", "k8s-ssl-updater")
     data = secret.data # extract .data from the secret 
@@ -27,7 +26,6 @@ def get_bucket_name():
 def list_objects(bucketname):
     from google.cloud import storage
     client = storage.Client()
-    logging.debug('in list_objects')
     ssl_list = []
     for blob in client.list_blobs(bucketname, prefix='ssl-certs/', delimiter='/'):
       folder, file = blob.name.split('/')
@@ -40,7 +38,6 @@ def list_objects(bucketname):
 
 def cert_bucket():
     bucketname = get_bucket_name()
-    logging.debug('in cert_bucket')
     print ("Bucket Name")
     print(bucketname)
     ssl_list = list_objects(bucketname)
@@ -49,7 +46,6 @@ def cert_bucket():
 @click.command()
 @click.option('--certfile', prompt='Select SSL File', type=click.Choice(['none'] + cert_bucket()), default='none')
 def cert_helper(certfile):
-    logging.debug('in cert_helper')
     print(f"Listing secrets in namespace {certfile}:")
     print ("here in cert helper")
 
