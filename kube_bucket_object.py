@@ -77,7 +77,8 @@ def download_blob(bucket_name, source_blob_name, destination_file_name):
 @click.option('--certfile', prompt='Select SSL File', type=click.Choice(['none'] + cert_bucket()), default='none')
 def cert_helper(certfile):
     print(f"Listing secrets in namespace {certfile}:")
-    download_blob(bucketname,"ssl-certs/{certfile}", certfile)
+    certfilepath = "ssl-certs/{}".format(certfile)
+    download_blob(bucketname,certfilepath,certfile)
 
 
 
