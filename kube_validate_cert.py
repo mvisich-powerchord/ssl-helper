@@ -4,6 +4,7 @@ import os
 import base64
 import sys
 import logging
+import tempfile
 from kubernetes import client, config
 from datetime import datetime
 from google.cloud import storage
