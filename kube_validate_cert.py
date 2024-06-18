@@ -64,7 +64,7 @@ def extract_certificate(pfx_path, temp_dir, password=None):
         command += f" -passin pass:{password}"
     return execute_openssl_command(command, temp_dir)
 
-def create_temp_directory(secret_name):
+def create_temp_directory(certfile):
     current_datetime = datetime.now().strftime("%Y%m%d%H%M%S")
     temp_dir = tempfile.mkdtemp(prefix=f"{certfile}_at_{current_datetime}_")
     return temp_dir
