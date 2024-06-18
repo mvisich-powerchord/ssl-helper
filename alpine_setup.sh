@@ -17,10 +17,5 @@ python3 -m venv .venv
 source .venv/bin/activate
 python3 -m pip install -r ./requirements.txt
 
-
-# Install required Python packages
-#pip3 install click
-#-r ./requirements.txt
-
 # Run the web interface
 exec python ./web_interface.py
