@@ -66,7 +66,7 @@ def extract_certificate(pfx_path, temp_dir, password=None):
 
 def create_temp_directory(secret_name):
     current_datetime = datetime.now().strftime("%Y%m%d%H%M%S")
-    temp_dir = tempfile.mkdtemp(prefix=f"{cerfile}_at_{current_datetime}_")
+    temp_dir = tempfile.mkdtemp(prefix=f"{certfile}_at_{current_datetime}_")
     return temp_dir
 
 
