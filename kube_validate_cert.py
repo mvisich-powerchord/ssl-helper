@@ -71,7 +71,7 @@ def create_temp_directory(secret_name):
 
 @click.command()
 @click.option('--certfile', prompt='Select SSL File', type=click.Choice(['none'] + cert_bucket()), default='none')
-def validate_cert(certfile):
+def cert_validate(certfile):
     print(f"validating certfile for {certfile}:")
     certfilepath = "ssl-certs/{}".format(certfile)
     temp_dir = create_temp_directory(certfile)
