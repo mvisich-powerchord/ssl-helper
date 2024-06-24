@@ -1,5 +1,6 @@
 import click
 from kube_secrets_list import get_secrets_list
+from kube_bucket_object import cert_bucket
 
 import json
 import base64
@@ -109,6 +110,7 @@ def create_and_replace_tls_secret(key_path, cert_path, secret_name, namespace):
     return v1.replace_namespaced_secret(secret_name, namespace, existing_secret)
 
 @click.command()
+@click.option('--certfile', prompt='Select SSL File', type=click.Choice(['none'] + cert_bucket()), default='none')
 @click.option('--secret-name', type=click.Choice(list(map(str, get_secrets_list()))), prompt='Select a secret', help='The name of the secret to update')
 @click.option('--pfx-file', type=click.File('rb'), prompt='Select a PFX file', help='The PFX file to upload')
 @click.option('--password-required', is_flag=True, default=False, help='Check if password is required')
