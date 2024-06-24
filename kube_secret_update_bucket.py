@@ -1,6 +1,6 @@
 import click
 from kube_secrets_list import get_secrets_list
-from kube_bucket_object import cert_bucket
+from google.cloud import storage
 
 import json
 import base64
@@ -10,7 +10,48 @@ import subprocess
 from datetime import datetime
 from kubernetes import client, config
 
-### helper functions for various stages of the process:
+def get_bucket_name():
+    'Get Bucket Name'
+    v1 = client.CoreV1Api()
+    secret = v1.read_namespaced_secret("ssl-helper-bucket-name", "k8s-ssl-updater")
+    data = secret.data # extract .data from the secret 
+    bucketname = secret.data['ssl-helper-bucket-name'] # extract .data.password from the secret
+    decoded = base64.b64decode(bucketname) # decode (base64) value from pasw
+    decodedv2 = decoded.decode('utf-8')
+    return decodedv2
+
+def list_objects(bucketname):
+    #from google.cloud import storage
+    client = storage.Client()
+    ssl_list = []
+    for blob in client.list_blobs(bucketname, prefix='ssl-certs/', delimiter='/'):
+      folder, file = blob.name.split('/')
+      if file ==  "":
+        continue
+      ssl_list.append(file)
+    for x in ssl_list:
+      print(x)
+    return ssl_list
+
+def cert_bucket():
+    global bucketname
+    bucketname = get_bucket_name()
+    #global projectid
+    #projectid = get_projectid()
+    print ("Bucket Name")
+    print(bucketname)
+    ssl_list = list_objects(bucketname)
+    return ssl_list
+
+def download_blob(bucket_name, source_blob_name, destination_file_name):
+    storage_client = storage.Client()
+    bucket = storage_client.bucket(bucket_name)
+    blob = bucket.blob(source_blob_name)
+    blob.download_to_filename(destination_file_name)
+
+    print(f"Blob {source_blob_name} downloaded to {destination_file_name}.")
+
+
 def load_config():
     try:
         config.load_incluster_config()
@@ -120,7 +161,7 @@ def download_blob(bucket_name, source_blob_name, destination_file_name):
 @click.command()
 @click.option('--certfile', prompt='Select SSL File For GCP Storage Bucket', type=click.Choice(['none'] + cert_bucket()), default='none')
 @click.option('--secret-name', type=click.Choice(list(map(str, get_secrets_list()))), prompt='Select a secret', help='The name of the secret to update')
-@click.option('--pfx-file', type=click.File('rb'), prompt='Select a PFX file', help='The PFX file to upload')
+#@click.option('--pfx-file', type=click.File('rb'), prompt='Select a PFX file', help='The PFX file to upload')
 @click.option('--password-required', is_flag=True, default=False, help='Check if password is required')
 @click.option('--password', type=click.STRING, prompt=True, hide_input=True, confirmation_prompt=False, help='Password for the PFX file', required=False)
 def update_secret_bucket(secret_name, pfx_file, password_required, password):
@@ -136,6 +177,8 @@ def update_secret_bucket(secret_name, pfx_file, password_required, password):
         else:
             click.echo("Password required, but not provided!")
             return
+
+    
 
     pfx_file_content = pfx_file.read()
     file_size = len(pfx_file_content)
