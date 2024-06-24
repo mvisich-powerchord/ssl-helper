@@ -163,7 +163,8 @@ def download_blob(bucket_name, source_blob_name, destination_file_name):
 @click.option('--secret-name', type=click.Choice(list(map(str, get_secrets_list()))), prompt='Select a secret', help='The name of the secret to update')
 @click.option('--password-required', is_flag=True, default=False, help='Check if password is required')
 @click.option('--password', type=click.STRING, prompt=True, hide_input=True, confirmation_prompt=False, help='Password for the PFX file', required=False)
-def update_secret_bucket(secret_name, pfx_file, password_required, password):
+#def update_secret_bucket(secret_name, pfx_file, password_required, password):
+def update_secret_bucket():
     'Update the specified Kubernetes secret with PFX file uplodated to GCP bucket'
     print("here")
     #bucketname = get_bucket_name()
