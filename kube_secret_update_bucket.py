@@ -161,7 +161,6 @@ def download_blob(bucket_name, source_blob_name, destination_file_name):
 @click.command()
 @click.option('--certfile', prompt='Select SSL File For GCP Storage Bucket', type=click.Choice(['none'] + cert_bucket()), default='none')
 @click.option('--secret-name', type=click.Choice(list(map(str, get_secrets_list()))), prompt='Select a secret', help='The name of the secret to update')
-#@click.option('--pfx-file', type=click.File('rb'), prompt='Select a PFX file', help='The PFX file to upload')
 @click.option('--password-required', is_flag=True, default=False, help='Check if password is required')
 @click.option('--password', type=click.STRING, prompt=True, hide_input=True, confirmation_prompt=False, help='Password for the PFX file', required=False)
 def update_secret_bucket(secret_name, pfx_file, password_required, password):
@@ -186,8 +185,11 @@ def update_secret_bucket(secret_name, pfx_file, password_required, password):
 
     temp_dir = create_temp_directory(certfile)
     print(temp_dir)
+    print(bucketname)
+    print(certfilepath)
+    print(certfile)
     download_blob(bucketname,certfilepath,certfile)
-
+"""
     file_size = len(pfx_file_content)
     click.echo(f"Size of PFX file: {file_size} bytes")
 
@@ -244,5 +246,6 @@ def update_secret_bucket(secret_name, pfx_file, password_required, password):
     click.echo("Creating and replacing TLS secret...")
     response = create_and_replace_tls_secret(key_path, cert_path, secret_name, namespace)
     click.echo(f"Secret updated successfully: {response}")
+"""
 if __name__ == '__main__':
     update_secret()
