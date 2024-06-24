@@ -166,15 +166,15 @@ def download_blob(bucket_name, source_blob_name, destination_file_name):
 def update_secret_bucket(secret_name, pfx_file, password_required, password):
     'Update the specified Kubernetes secret with PFX file uplodated to GCP bucket'
     print("here")
-    bucketname = get_bucket_name()
+    #bucketname = get_bucket_name()
     #pfx_file_content = pfx_file.read()
-    certfilepath = "ssl-certs/{}".format(certfile)
-    temp_dir = create_temp_directory(certfile)
-    print(temp_dir)
-    print(bucketname)
-    print(certfilepath)
-    print(certfile)
-    download_blob(bucketname,certfilepath,certfile)
+    #certfilepath = "ssl-certs/{}".format(certfile)
+    #temp_dir = create_temp_directory(certfile)
+    #print(temp_dir)
+    #print(bucketname)
+    #print(certfilepath)
+    #print(certfile)
+    #download_blob(bucketname,certfilepath,certfile)
 """
 
         if not password_required:
