@@ -177,8 +177,9 @@ def update_secret_bucket(secret_name, pfx_file, password_required, password):
             click.echo("Password required, but not provided!")
             return
 
-    
-    bucketname = get_bucket_name()
+    print("here")
+"""
+    #bucketname = get_bucket_name()
     #pfx_file_content = pfx_file.read()
     certfilepath = "ssl-certs/{}".format(certfile)
 
@@ -189,7 +190,7 @@ def update_secret_bucket(secret_name, pfx_file, password_required, password):
     print(certfilepath)
     print(certfile)
     download_blob(bucketname,certfilepath,certfile)
-"""
+
     file_size = len(pfx_file_content)
     click.echo(f"Size of PFX file: {file_size} bytes")
 
