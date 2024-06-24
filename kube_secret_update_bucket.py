@@ -165,7 +165,7 @@ def download_blob(bucket_name, source_blob_name, destination_file_name):
 @click.option('--password', type=click.STRING, prompt=True, hide_input=True, confirmation_prompt=False, help='Password for the PFX file', required=False)
 def update_secret_bucket(secret_name, pfx_file, password_required, password):
     'Update the specified Kubernetes secret with PFX file uplodated to GCP bucket'
-
+"""
     if not password_required:
         password = None
         click.echo("Password is not required, proceeding without it.")
@@ -176,10 +176,10 @@ def update_secret_bucket(secret_name, pfx_file, password_required, password):
         else:
             click.echo("Password required, but not provided!")
             return
-
-    print("here")
 """
-    #bucketname = get_bucket_name()
+    print("here")
+
+    bucketname = get_bucket_name()
     #pfx_file_content = pfx_file.read()
     certfilepath = "ssl-certs/{}".format(certfile)
 
@@ -190,7 +190,7 @@ def update_secret_bucket(secret_name, pfx_file, password_required, password):
     print(certfilepath)
     print(certfile)
     download_blob(bucketname,certfilepath,certfile)
-
+"""
     file_size = len(pfx_file_content)
     click.echo(f"Size of PFX file: {file_size} bytes")
 
