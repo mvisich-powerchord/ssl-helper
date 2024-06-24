@@ -123,7 +123,7 @@ def download_blob(bucket_name, source_blob_name, destination_file_name):
 @click.option('--pfx-file', type=click.File('rb'), prompt='Select a PFX file', help='The PFX file to upload')
 @click.option('--password-required', is_flag=True, default=False, help='Check if password is required')
 @click.option('--password', type=click.STRING, prompt=True, hide_input=True, confirmation_prompt=False, help='Password for the PFX file', required=False)
-def update_secret(secret_name, pfx_file, password_required, password):
+def update_secret_bucket(secret_name, pfx_file, password_required, password):
     'Update the specified Kubernetes secret with the provided PFX file and password'
 
     if not password_required:
