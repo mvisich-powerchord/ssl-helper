@@ -1,6 +1,5 @@
 import click
 from kube_secrets_list import get_secrets_list
-from kube_bucket_object import cert_bucket
 
 import json
 import base64
