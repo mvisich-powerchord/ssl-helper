@@ -10,6 +10,13 @@ import subprocess
 from datetime import datetime
 from kubernetes import client, config
 
+
+def load_config():
+    try:
+        config.load_incluster_config()
+    except:
+        config.load_kube_config()
+
 def get_bucket_name():
     'Get Bucket Name'
     v1 = client.CoreV1Api()
@@ -50,13 +57,6 @@ def download_blob(bucket_name, source_blob_name, destination_file_name):
     blob.download_to_filename(destination_file_name)
 
     print(f"Blob {source_blob_name} downloaded to {destination_file_name}.")
-
-
-def load_config():
-    try:
-        config.load_incluster_config()
-    except:
-        config.load_kube_config()
 
 def parse_secret_name(secret_name_str):
     return json.loads(secret_name_str.replace("'", '"'))
