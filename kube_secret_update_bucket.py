@@ -161,92 +161,11 @@ def download_blob(bucket_name, source_blob_name, destination_file_name):
 @click.command()
 @click.option('--certfile', prompt='Select SSL File For GCP Storage Bucket', type=click.Choice(['none'] + cert_bucket()), default='none')
 @click.option('--secret-name', type=click.Choice(list(map(str, get_secrets_list()))), prompt='Select a secret', help='The name of the secret to update')
-@click.option('--password-required', is_flag=True, default=False, help='Check if password is required')
 @click.option('--password', type=click.STRING, prompt=True, hide_input=True, confirmation_prompt=False, help='Password for the PFX file', required=False)
 #def update_secret_bucket(secret_name, pfx_file, password_required, password):
 def update_secret_bucket():
     'Update the specified Kubernetes secret with PFX file uplodated to GCP bucket'
     print("here")
-    #bucketname = get_bucket_name()
-    #pfx_file_content = pfx_file.read()
-    #certfilepath = "ssl-certs/{}".format(certfile)
-    #temp_dir = create_temp_directory(certfile)
-    #print(temp_dir)
-    #print(bucketname)
-    #print(certfilepath)
-    #print(certfile)
-    #download_blob(bucketname,certfilepath,certfile)
-"""
-
-        if not password_required:
-        password = None
-        click.echo("Password is not required, proceeding without it.")
-    else:
-        if password:
-            password_length = len(password)
-            click.echo(f"Password length: {password_length}")
-        else:
-            click.echo("Password required, but not provided!")
-            return
-
-
-
-    file_size = len(pfx_file_content)
-    click.echo(f"Size of PFX file: {file_size} bytes")
-
-    secret_name_obj = parse_secret_name(secret_name)
-    secret_name = secret_name_obj['name']
-    namespace = secret_name_obj['namespace']
-    click.echo(f"Parsed Secret Name: {secret_name}")
-    click.echo(f"Parsed Namespace: {namespace}")
-
-    
-    click.echo("Creating temporary directory...")
-    temp_dir = create_temp_directory(secret_name)
-    click.echo(f"Temporary directory created: {temp_dir}")
-
-    click.echo("Writing PFX file...")
-    pfx_path = write_pfx_file(temp_dir, pfx_file_content)
-    click.echo(f"PFX file written: {pfx_path}")
-
-    return_code, stdout, stderr = extract_key(pfx_path, temp_dir, password)
-    click.echo(f"Extracting Key: Return Code: {return_code}, Output: {stdout}, Errors: {stderr}")
-    if return_code != 0:
-        click.echo("Failed to extract key. Exiting.")
-        return
-
-    return_code, stdout, stderr = extract_certificate(pfx_path, temp_dir, password)
-    click.echo(f"Extracting Certificate: Return Code: {return_code}, Output: {stdout}, Errors: {stderr}")
-    if return_code != 0:
-        click.echo("Failed to extract certificate. Exiting.")
-        return
-
-    key_path = os.path.join(temp_dir, "my.key")
-    cert_path = os.path.join(temp_dir, "my.crt")
-    key_modulus, cert_modulus = validate_modulus(key_path, cert_path, temp_dir)
-    click.echo(f"Validating Modulus: Key Modulus: {key_modulus}, Certificate Modulus: {cert_modulus}")
-    if key_modulus != cert_modulus:
-        click.echo("Modulus values differ. Exiting.")
-        return
-
-    start_date, end_date = validate_dates(pfx_path, temp_dir, password=password)
-    click.echo(f"Validating Dates: Start Date: {start_date}, End Date: {end_date}")
-    current_date = datetime.now()
-    if start_date > current_date:
-        click.echo("Start date is in the future. Exiting.")
-        return
-    if end_date < current_date:
-        click.echo("End date is in the past. Exiting.")
-        return
-        
-    click.echo("Backing up existing secret...")
-    restore_command = backup_secret(secret_name, namespace)
-    click.echo("Secret backed up. You can restore it using the following command:")
-    click.echo(restore_command)
-
-    click.echo("Creating and replacing TLS secret...")
-    response = create_and_replace_tls_secret(key_path, cert_path, secret_name, namespace)
-    click.echo(f"Secret updated successfully: {response}")
-"""
+   
 if __name__ == '__main__':
     update_secret_bucket()
