@@ -8,6 +8,7 @@ import tempfile
 from kubernetes import client, config
 from datetime import datetime
 from google.cloud import storage
+from kube_secrets_list import get_secrets_list
 
 def load_config():
     try:
@@ -72,12 +73,14 @@ def create_temp_directory(certfile):
 
 @click.command()
 @click.option('--certfile', prompt='Select SSL File', type=click.Choice(['none'] + cert_bucket()), default='none')
+@click.option('--secret-name', type=click.Choice(list(map(str, get_secrets_list()))), prompt='Select a secret', help='The name of the secret to update')
 def cert_validate(certfile):
     print(f"validating certfile for {certfile}:")
     certfilepath = "ssl-certs/{}".format(certfile)
     temp_dir = create_temp_directory(certfile)
     print(temp_dir)
     download_blob(bucketname,certfilepath,certfile)
+
 
 
 
