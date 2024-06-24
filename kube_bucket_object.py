@@ -1,12 +1,15 @@
 import click
-import json
-import os
-import base64
-import sys
-import logging
-from kubernetes import client, config
-from datetime import datetime
+from kube_secrets_list import get_secrets_list
 from google.cloud import storage
+
+import json
+import base64
+import tempfile
+import os
+import subprocess
+from datetime import datetime
+from kubernetes import client, config
+
 
 def load_config():
     try:
@@ -21,16 +24,6 @@ def get_bucket_name():
     data = secret.data # extract .data from the secret 
     bucketname = secret.data['ssl-helper-bucket-name'] # extract .data.password from the secret
     decoded = base64.b64decode(bucketname) # decode (base64) value from pasw
-    decodedv2 = decoded.decode('utf-8')
-    return decodedv2
-
-def get_projectid():
-    'Get Project ID'
-    v1 = client.CoreV1Api()
-    secret = v1.read_namespaced_secret("ssl-helper-bucket-project-id", "k8s-ssl-updater")
-    data = secret.data # extract .data from the secret 
-    projectid = secret.data['ssl-helper-bucket-project-id'] # extract .data.password from the secret
-    decoded = base64.b64decode(projectid) # decode (base64) value from pasw
     decodedv2 = decoded.decode('utf-8')
     return decodedv2
 
@@ -58,41 +51,121 @@ def cert_bucket():
     return ssl_list
 
 def download_blob(bucket_name, source_blob_name, destination_file_name):
-    """Downloads a blob from the bucket."""
-    # Initialize a client
     storage_client = storage.Client()
-
-    # Get the bucket
     bucket = storage_client.bucket(bucket_name)
-
-    # Get the blob
     blob = bucket.blob(source_blob_name)
+    blob.download_to_filename(destination_file_name)
 
-    # Download the blob to a file
+    print(f"Blob {source_blob_name} downloaded to {destination_file_name}.")
+
+def parse_secret_name(secret_name_str):
+    return json.loads(secret_name_str.replace("'", '"'))
+
+def create_temp_directory(secret_name):
+    current_datetime = datetime.now().strftime("%Y%m%d%H%M%S")
+    temp_dir = tempfile.mkdtemp(prefix=f"{secret_name}_at_{current_datetime}_")
+    return temp_dir
+
+def write_pfx_file(temp_dir, pfx_file):
+    pfx_path = os.path.join(temp_dir, "my.pfx")
+    with open(pfx_path, 'wb') as file:
+        file.write(pfx_file)
+    return pfx_path
+
+def execute_openssl_command(command, working_directory):
+    result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, cwd=working_directory)
+    return result.returncode, result.stdout.decode('utf-8'), result.stderr.decode('utf-8')
+
+def extract_key(pfx_path, temp_dir, password=None):
+    command = f"openssl pkcs12 -in {pfx_path} -legacy -nocerts -out my.key -nodes"
+    if password:
+        command += f" -passin pass:{password}"
+    return execute_openssl_command(command, temp_dir)
+
+def extract_certificate(pfx_path, temp_dir, password=None):
+    command = f"openssl pkcs12 -legacy -nodes -in {pfx_path} -nokeys -out my.crt"
+    if password:
+        command += f" -passin pass:{password}"
+    return execute_openssl_command(command, temp_dir)
+
+def validate_modulus(key_path, cert_path, temp_dir):
+    key_modulus_command = f"openssl rsa -noout -modulus -in {key_path} | openssl md5"
+    cert_modulus_command = f"openssl x509 -noout -modulus -in {cert_path} | openssl md5"
+    key_modulus = execute_openssl_command(key_modulus_command, temp_dir)
+    cert_modulus = execute_openssl_command(cert_modulus_command, temp_dir)
+    return key_modulus, cert_modulus
+
+def validate_dates(cert_path, temp_dir, password=None):
+    passin_option = f" -passin pass:{password}" if password else ""
+    start_date_command = f"openssl x509 -noout -startdate -in {cert_path}{passin_option}"
+    end_date_command = f"openssl x509 -noout -enddate -in {cert_path}{passin_option}"
+    
+    return_code_start, start_date_str, _ = execute_openssl_command(start_date_command, temp_dir)
+    return_code_end, end_date_str, _ = execute_openssl_command(end_date_command, temp_dir)
+
+    start_date_str = start_date_str.split('=', 1)[1].strip()
+    end_date_str = end_date_str.split('=', 1)[1].strip()
+    
+    start_date = datetime.strptime(start_date_str, '%b %d %H:%M:%S %Y %Z')
+    end_date = datetime.strptime(end_date_str, '%b %d %H:%M:%S %Y %Z')
+    
+    return start_date, end_date
+
+def backup_secret(secret_name, namespace):
+    load_config()
+    v1 = client.CoreV1Api()
+    old_secret = v1.read_namespaced_secret(secret_name, namespace)
+
+    # Create a copy of the old secret under a different name
+    backup_secret_name = f"{secret_name}-backup-{datetime.now().strftime('%Y%m%d%H%M%S')}"
+    backup_secret = client.V1Secret(
+        metadata=client.V1ObjectMeta(name=backup_secret_name),
+        type=old_secret.type,
+        data=old_secret.data
+    )
+    v1.create_namespaced_secret(namespace, backup_secret)
+
+    # Generate bash command string to restore the backed up secret
+    restore_command = (
+        f"kubectl get secret {backup_secret_name} -n {namespace} -o yaml > {backup_secret_name}.secret.yaml; "
+        f"kubectl delete secret {secret_name} -n {namespace}; "
+        f"kubectl apply -f {backup_secret_name}.secret.yaml;"
+    )
+
+    return restore_command
+
+
+def create_and_replace_tls_secret(key_path, cert_path, secret_name, namespace):
+    load_config()
+    v1 = client.CoreV1Api()
+
+    # Read the existing secret to preserve any other data
+    existing_secret = v1.read_namespaced_secret(secret_name, namespace)
+
+    # Update the secret with new key and cert data
+    with open(key_path, 'r') as key_file, open(cert_path, 'r') as cert_file:
+        existing_secret.data["tls.key"] = base64.b64encode(key_file.read().encode()).decode()
+        existing_secret.data["tls.crt"] = base64.b64encode(cert_file.read().encode()).decode()
+
+    # Replace the existing secret
+    return v1.replace_namespaced_secret(secret_name, namespace, existing_secret)
+
+def download_blob(bucket_name, source_blob_name, destination_file_name):
+    storage_client = storage.Client()
+    bucket = storage_client.bucket(bucket_name)
+    blob = bucket.blob(source_blob_name)
     blob.download_to_filename(destination_file_name)
 
     print(f"Blob {source_blob_name} downloaded to {destination_file_name}.")
 
 @click.command()
-@click.option('--certfile', prompt='Select SSL File', type=click.Choice(['none'] + cert_bucket()), default='none')
-def cert_helper(certfile):
-    print(f"Listing secrets in namespace {certfile}:")
-    certfilepath = "ssl-certs/{}".format(certfile)
-    download_blob(bucketname,certfilepath,certfile)
-    # validate the cert and key match
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#if __name__ == '__main__':
-#    cert_helper()
+@click.option('--certfile', prompt='Select SSL File For GCP Storage Bucket', type=click.Choice(['none'] + cert_bucket()), default='none')
+@click.option('--secret-name', type=click.Choice(list(map(str, get_secrets_list()))), prompt='Select a secret', help='The name of the secret to update')
+@click.option('--password', type=click.STRING, prompt=True, hide_input=True, confirmation_prompt=False, help='Password for the PFX file', required=False)
+#def update_secret_bucket(secret_name, pfx_file, password_required, password):
+def update_secret_bucket():
+    'Update the specified Kubernetes secret with PFX file uplodated to GCP bucket'
+    print("here")
+   
+if __name__ == '__main__':
+    update_secret_bucket()
