@@ -53,6 +53,24 @@ def download_blob(bucket_name, source_blob_name, destination_file_name):
 
     print(f"Blob {source_blob_name} downloaded to {destination_file_name}.")
 
+def parse_secret_name(secret_name_str):
+    return json.loads(secret_name_str.replace("'", '"'))
+
+def create_temp_directory(secret_name):
+    current_datetime = datetime.now().strftime("%Y%m%d%H%M%S")
+    temp_dir = tempfile.mkdtemp(prefix=f"{secret_name}_at_{current_datetime}_")
+    return temp_dir
+
+def write_pfx_file(temp_dir, pfx_file):
+    pfx_path = os.path.join(temp_dir, "my.pfx")
+    with open(pfx_path, 'wb') as file:
+        file.write(pfx_file)
+    return pfx_path
+
+def execute_openssl_command(command, working_directory):
+    result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, cwd=working_directory)
+    return result.returncode, result.stdout.decode('utf-8'), result.stderr.decode('utf-8')
+
 def extract_key(pfx_path, temp_dir, password=None):
     command = f"openssl pkcs12 -in {pfx_path} -legacy -nocerts -out my.key -nodes"
     if password:
@@ -65,11 +83,67 @@ def extract_certificate(pfx_path, temp_dir, password=None):
         command += f" -passin pass:{password}"
     return execute_openssl_command(command, temp_dir)
 
-def create_temp_directory(certfile):
-    current_datetime = datetime.now().strftime("%Y%m%d%H%M%S")
-    temp_dir = tempfile.mkdtemp(prefix=f"{certfile}_at_{current_datetime}_")
-    return temp_dir
+def validate_modulus(key_path, cert_path, temp_dir):
+    key_modulus_command = f"openssl rsa -noout -modulus -in {key_path} | openssl md5"
+    cert_modulus_command = f"openssl x509 -noout -modulus -in {cert_path} | openssl md5"
+    key_modulus = execute_openssl_command(key_modulus_command, temp_dir)
+    cert_modulus = execute_openssl_command(cert_modulus_command, temp_dir)
+    return key_modulus, cert_modulus
 
+def validate_dates(cert_path, temp_dir, password=None):
+    passin_option = f" -passin pass:{password}" if password else ""
+    start_date_command = f"openssl x509 -noout -startdate -in {cert_path}{passin_option}"
+    end_date_command = f"openssl x509 -noout -enddate -in {cert_path}{passin_option}"
+    
+    return_code_start, start_date_str, _ = execute_openssl_command(start_date_command, temp_dir)
+    return_code_end, end_date_str, _ = execute_openssl_command(end_date_command, temp_dir)
+
+    start_date_str = start_date_str.split('=', 1)[1].strip()
+    end_date_str = end_date_str.split('=', 1)[1].strip()
+    
+    start_date = datetime.strptime(start_date_str, '%b %d %H:%M:%S %Y %Z')
+    end_date = datetime.strptime(end_date_str, '%b %d %H:%M:%S %Y %Z')
+    
+    return start_date, end_date
+
+def backup_secret(secret_name, namespace):
+    load_config()
+    v1 = client.CoreV1Api()
+    old_secret = v1.read_namespaced_secret(secret_name, namespace)
+
+    # Create a copy of the old secret under a different name
+    backup_secret_name = f"{secret_name}-backup-{datetime.now().strftime('%Y%m%d%H%M%S')}"
+    backup_secret = client.V1Secret(
+        metadata=client.V1ObjectMeta(name=backup_secret_name),
+        type=old_secret.type,
+        data=old_secret.data
+    )
+    v1.create_namespaced_secret(namespace, backup_secret)
+
+    # Generate bash command string to restore the backed up secret
+    restore_command = (
+        f"kubectl get secret {backup_secret_name} -n {namespace} -o yaml > {backup_secret_name}.secret.yaml; "
+        f"kubectl delete secret {secret_name} -n {namespace}; "
+        f"kubectl apply -f {backup_secret_name}.secret.yaml;"
+    )
+
+    return restore_command
+
+
+def create_and_replace_tls_secret(key_path, cert_path, secret_name, namespace):
+    load_config()
+    v1 = client.CoreV1Api()
+
+    # Read the existing secret to preserve any other data
+    existing_secret = v1.read_namespaced_secret(secret_name, namespace)
+
+    # Update the secret with new key and cert data
+    with open(key_path, 'r') as key_file, open(cert_path, 'r') as cert_file:
+        existing_secret.data["tls.key"] = base64.b64encode(key_file.read().encode()).decode()
+        existing_secret.data["tls.crt"] = base64.b64encode(cert_file.read().encode()).decode()
+
+    # Replace the existing secret
+    return v1.replace_namespaced_secret(secret_name, namespace, existing_secret)
 
 @click.command()
 @click.option('--certfile', prompt='Select SSL File For GCP Storage Bucket', type=click.Choice(['none'] + cert_bucket()), default='none')
