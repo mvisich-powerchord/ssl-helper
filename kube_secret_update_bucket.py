@@ -164,7 +164,7 @@ def update_secret_bucket(certfile,secretname,pfxcode):
     file_size = os.stat(destination_for_cert).st_size
     click.echo(f"Size of PFX file: {file_size} bytes")
 
-    secret_name_obj = parse_secret_name(secret_name)
+    secret_name_obj = parse_secret_name(secretname)
     secret_name = secret_name_obj['name']
     namespace = secret_name_obj['namespace']
     click.echo(f"Parsed Secret Name: {secret_name}")
