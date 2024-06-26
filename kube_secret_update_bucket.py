@@ -159,7 +159,7 @@ def update_secret_bucket(certfile,secretname,pfxcode):
     print(temp_dir)
     destination_for_cert = "{}/{}".format(temp_dir,certfile)
     print(destination_for_cert)
-    #download_blob(bucket_name, certfilepath, destination_file_name)
+    download_blob(bucket_name, certfilepath, destination_for_cert)
 
 
     # validate the cert and key match
