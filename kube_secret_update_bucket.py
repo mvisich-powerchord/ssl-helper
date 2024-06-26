@@ -153,6 +153,12 @@ def create_and_replace_tls_secret(key_path, cert_path, secret_name, namespace):
 def update_secret_bucket(certfile,secretname,pfxcode):
     'Update the specified Kubernetes secret with PFX file uplodated to GCP bucket'
     print("here")
+    certfilepath = "ssl-certs/{}".format(certfile)
+    temp_dir = create_temp_directory(certfile)
+    print(temp_dir)
+
+    #download_blob(bucket_name, certfilepath, destination_file_name)
+
 
     # validate the cert and key match
 
