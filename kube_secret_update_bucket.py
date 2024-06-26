@@ -160,7 +160,7 @@ def update_secret_bucket(certfile,secretname,pfxcode):
     destination_for_cert = "{}/{}".format(temp_dir,certfile)
     print(destination_for_cert)
     download_blob(bucket_name, certfilepath, destination_for_cert)
-    f = open(destination_for_cert, "r")
+    f = open(destination_for_cert, "rb")
     print(f.read())
 
     #click.echo(f"Size of PFX file: {file_size} bytes")
