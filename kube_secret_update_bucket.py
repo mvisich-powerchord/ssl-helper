@@ -6,6 +6,7 @@ import base64
 import sys
 import logging
 import tempfile
+import subprocess
 from kubernetes import client, config
 from datetime import datetime
 from google.cloud import storage
