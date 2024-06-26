@@ -200,7 +200,7 @@ def update_secret_bucket(certfile,secretname,password):
         click.echo("Modulus values differ. Exiting.")
         return
 
-    start_date, end_date = validate_dates(pfx_path, temp_dir, password=password)
+    start_date, end_date = validate_dates(key_path, temp_dir, password=password)
     click.echo(f"Validating Dates: Start Date: {start_date}, End Date: {end_date}")
     current_date = datetime.now()
     if start_date > current_date:
