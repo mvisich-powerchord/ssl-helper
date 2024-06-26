@@ -99,6 +99,9 @@ def validate_dates(cert_path, temp_dir, password=None):
     return_code_start, start_date_str, _ = execute_openssl_command(start_date_command, temp_dir)
     return_code_end, end_date_str, _ = execute_openssl_command(end_date_command, temp_dir)
 
+    print(start_date_str)
+    print(end_date_str)
+
     start_date_str = start_date_str.split('=', 1)[1].strip()
     end_date_str = end_date_str.split('=', 1)[1].strip()
     
