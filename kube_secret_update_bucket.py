@@ -155,8 +155,10 @@ def update_secret_bucket(certfile,secretname,pfxcode):
     print("here")
     certfilepath = "ssl-certs/{}".format(certfile)
     temp_dir = create_temp_directory(certfile)
-    print(temp_dir)
 
+    print(temp_dir)
+    destination_for_cert = "{}/{}".format(temp_dir,certfile)
+    print(destination_for_cert)
     #download_blob(bucket_name, certfilepath, destination_file_name)
 
 
