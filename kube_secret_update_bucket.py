@@ -148,9 +148,9 @@ def create_and_replace_tls_secret(key_path, cert_path, secret_name, namespace):
 @click.command()
 @click.option('--certfile', prompt='Select SSL File For GCP Storage Bucket', type=click.Choice(['none'] + cert_bucket()), default='none')
 @click.option('--secretname', type=click.Choice(list(map(str, get_secrets_list()))), prompt='Select a secret', help='The name of the secret to update')
-@click.option('--pfxcode', type=click.STRING, prompt=True, hide_input=True, confirmation_prompt=False, help='Password for the PFX file', required=False)
+@click.option('--password', type=click.STRING, prompt=True, hide_input=True, confirmation_prompt=False, help='Password for the PFX file', required=False)
 #def update_secret_bucket(secret_name, pfx_file, password_required, password):
-def update_secret_bucket(certfile,secretname,pfxcode):
+def update_secret_bucket(certfile,secretname,password):
     'Update the specified Kubernetes secret with PFX file uplodated to GCP bucket'
     print("here")
     certfilepath = "ssl-certs/{}".format(certfile)
