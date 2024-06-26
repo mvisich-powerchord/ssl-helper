@@ -164,6 +164,51 @@ def update_secret_bucket(certfile,secretname,pfxcode):
     file_size = os.stat(destination_for_cert).st_size
     click.echo(f"Size of PFX file: {file_size} bytes")
 
+    secret_name_obj = parse_secret_name(secret_name)
+    secret_name = secret_name_obj['name']
+    namespace = secret_name_obj['namespace']
+    click.echo(f"Parsed Secret Name: {secret_name}")
+    click.echo(f"Parsed Namespace: {namespace}")
+
+    
+    #click.echo("Creating temporary directory...")
+    #temp_dir = create_temp_directory(secret_name)
+    #click.echo(f"Temporary directory created: {temp_dir}")
+
+    #click.echo("Writing PFX file...")
+    #pfx_path = write_pfx_file(temp_dir, pfx_file_content)
+    #click.echo(f"PFX file written: {pfx_path}")
+
+    return_code, stdout, stderr = extract_key(destination_for_cert, temp_dir, password)
+    click.echo(f"Extracting Key: Return Code: {return_code}, Output: {stdout}, Errors: {stderr}")
+    if return_code != 0:
+        click.echo("Failed to extract key. Exiting.")
+        return
+
+    return_code, stdout, stderr = extract_certificate(destination_for_cert, temp_dir, password)
+    click.echo(f"Extracting Certificate: Return Code: {return_code}, Output: {stdout}, Errors: {stderr}")
+    if return_code != 0:
+        click.echo("Failed to extract certificate. Exiting.")
+        return
+
+    key_path = os.path.join(temp_dir, "my.key")
+    cert_path = os.path.join(temp_dir, "my.crt")
+    key_modulus, cert_modulus = validate_modulus(key_path, cert_path, temp_dir)
+    click.echo(f"Validating Modulus: Key Modulus: {key_modulus}, Certificate Modulus: {cert_modulus}")
+    if key_modulus != cert_modulus:
+        click.echo("Modulus values differ. Exiting.")
+        return
+
+    start_date, end_date = validate_dates(pfx_path, temp_dir, password=password)
+    click.echo(f"Validating Dates: Start Date: {start_date}, End Date: {end_date}")
+    current_date = datetime.now()
+    if start_date > current_date:
+        click.echo("Start date is in the future. Exiting.")
+        return
+    if end_date < current_date:
+        click.echo("End date is in the past. Exiting.")
+        return
+
     #click.echo(f"Size of PFX file: {file_size} bytes")
 
 
