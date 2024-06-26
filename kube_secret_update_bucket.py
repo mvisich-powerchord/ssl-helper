@@ -95,6 +95,8 @@ def validate_dates(cert_path, temp_dir, password=None):
     passin_option = f" -passin pass:{password}" if password else ""
     start_date_command = f"openssl x509 -noout -startdate -in {cert_path}{passin_option}"
     end_date_command = f"openssl x509 -noout -enddate -in {cert_path}{passin_option}"
+    print(start_date_command)
+    print(end_date_command)
     
     return_code_start, start_date_str, _ = execute_openssl_command(start_date_command, temp_dir)
     return_code_end, end_date_str, _ = execute_openssl_command(end_date_command, temp_dir)
