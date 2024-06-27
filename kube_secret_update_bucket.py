@@ -139,7 +139,7 @@ def validate_dates(cert_path, temp_dir, password=None):
     end_date = datetime.strptime(end_date_str, '%b %d %H:%M:%S %Y %Z')
     
     return start_date, end_date
-
+"""
 def backup_secret(secret_name, namespace):
     load_config()
     v1 = client.CoreV1Api()
@@ -162,7 +162,24 @@ def backup_secret(secret_name, namespace):
     )
 
     return restore_command
+"""
 
+def backup_secret(secret_name, namespace):
+    load_config()
+    v1 = client.CoreV1Api()
+    old_secret = v1.read_namespaced_secret(secret_name, namespace)
+
+    # Create a copy of the old secret under a different name
+    backup_secret_name = f"{secret_name}-backup-{datetime.now().strftime('%Y%m%d%H%M%S')}"
+    backup_secret = client.V1Secret(
+        metadata=client.V1ObjectMeta(name=backup_secret_name),
+        type=old_secret.type,
+        data=old_secret.data
+    )
+    v1.create_namespaced_secret(namespace, backup_secret)
+
+
+    return backup_secret_name
 
 def create_and_replace_tls_secret(key_path, cert_path, secret_name, namespace):
     load_config()
@@ -245,10 +262,19 @@ def update_secret_bucket(certfile,secretname,password):
 
 
     click.echo("Backing up existing secret...")
-    restore_command = backup_secret(secret_name, namespace)
-    click.echo("Secret backed up. You can restore it using the following command:")
-    click.echo(restore_command)
+    backup_secret_name = backup_secret(secret_name, namespace)
+  
+
+
+    click.echo("uploding secret")
+    print(bucket_name)
+    print(backup_secret_name)
+    backup_path = "secret-backup/{}".format(backup_secret_name)
+    print(backup_path)
+
     
+    #upload_blob(bucket_name, source_file_name, destination_blob_name):
+
     #click.echo(f"Size of PFX file: {file_size} bytes")
 
 
