@@ -273,7 +273,7 @@ def update_secret_bucket(certfile,secretname,password):
     print(backup_path)
 
     
-    upload_blob(bucket_name, backup_secret_name, backup_path):
+    upload_blob(bucket_name, backup_secret_name, backup_path)
 
     #click.echo(f"Size of PFX file: {file_size} bytes")
 
