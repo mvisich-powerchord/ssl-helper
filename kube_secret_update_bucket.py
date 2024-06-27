@@ -94,10 +94,6 @@ def write_pfx_file(temp_dir, pfx_file):
         file.write(pfx_file)
     return pfx_path
 
-def execute_kubectl_command(command, working_directory):
-    result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, cwd=working_directory)
-    return result.returncode, result.stdout.decode('utf-8'), result.stderr.decode('utf-8')
-
 
 def execute_openssl_command(command, working_directory):
     result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, cwd=working_directory)
@@ -174,20 +170,9 @@ def backup_secret(secret_name, namespace):
     temp_dir = "/tmp/"
     v1 = client.CoreV1Api()
     backup_secret_name = f"{secret_name}-backup-{datetime.now().strftime('%Y%m%d%H%M%S')}"
-    command = f"kubectl get secret {secret_name} -n {namespace} -o yaml > {backup_secret_name}.secret.yaml;"
-    execute_kubectl_command(command, temp_dir)
-    #old_secret = v1.read_namespaced_secret(secret_name, namespace)
-
-    # Create a copy of the old secret under a different name
-    #backup_secret_name = f"{secret_name}-backup-{datetime.now().strftime('%Y%m%d%H%M%S')}"
-    #backup_secret = client.V1Secret(
-    #    metadata=client.V1ObjectMeta(name=backup_secret_name),
-    #    type=old_secret.type,
-    #    data=old_secret.data
-    #)
-    #v1.create_namespaced_secret(namespace, backup_secret)
-
-
+    existing_secret = v1.read_namespaced_secret(secret_name, namespace)
+    print (existing_secret)
+   
     return backup_secret_name
 
 def create_and_replace_tls_secret(key_path, cert_path, secret_name, namespace):
@@ -282,7 +267,7 @@ def update_secret_bucket(certfile,secretname,password):
     print(backup_path)
 
     
-    upload_blob(bucket_name, backup_secret_name, backup_path)
+    #upload_blob(bucket_name, backup_secret_name, backup_path)
 
     #click.echo(f"Size of PFX file: {file_size} bytes")
 
