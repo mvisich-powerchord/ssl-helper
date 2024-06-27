@@ -34,8 +34,7 @@ def list_objects(bucketname):
       if file ==  "":
         continue
       ssl_list.append(file)
-    for x in ssl_list:
-      print(x)
+    print(ssl_list)
     return ssl_list
 
 def cert_bucket():
