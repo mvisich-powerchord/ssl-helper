@@ -266,6 +266,10 @@ def update_secret_bucket(certfile,secretname,password):
     backup_path = "secret-backup/{}".format(backup_secret_name)
     print(backup_path)
 
+    click.echo("Creating and replacing TLS secret...")
+    response = create_and_replace_tls_secret(key_path, cert_path, secret_name, namespace)
+    click.echo(f"Secret updated successfully: {response}")
+
     
     #upload_blob(bucket_name, backup_secret_name, backup_path)
 
