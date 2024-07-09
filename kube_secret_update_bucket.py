@@ -215,15 +215,6 @@ def update_secret_bucket(certfile,secretname,password):
     click.echo(f"Parsed Secret Name: {secret_name}")
     click.echo(f"Parsed Namespace: {namespace}")
 
-    
-    #click.echo("Creating temporary directory...")
-    #temp_dir = create_temp_directory(secret_name)
-    #click.echo(f"Temporary directory created: {temp_dir}")
-
-    #click.echo("Writing PFX file...")
-    #pfx_path = write_pfx_file(temp_dir, pfx_file_content)
-    #click.echo(f"PFX file written: {pfx_path}")
-
     return_code, stdout, stderr = extract_key(destination_for_cert, temp_dir, password)
     click.echo(f"Extracting Key: Return Code: {return_code}, Output: {stdout}, Errors: {stderr}")
     if return_code != 0:
@@ -258,24 +249,9 @@ def update_secret_bucket(certfile,secretname,password):
     click.echo("Backing up existing secret...")
     backup_secret_name = backup_secret(secret_name, namespace)
   
-
-
     click.echo("uploding secret")
-    print(bucket_name)
-    print(backup_secret_name)
     backup_path = "secret-backup/{}".format(backup_secret_name)
-    print(backup_path)
 
     click.echo("Creating and replacing TLS secret...")
     response = create_and_replace_tls_secret(key_path, cert_path, secret_name, namespace)
     click.echo(f"Secret updated successfully: {response}")
-
-    
-    #upload_blob(bucket_name, backup_secret_name, backup_path)
-
-    #click.echo(f"Size of PFX file: {file_size} bytes")
-
-
-    # validate the cert and key match
-
-
