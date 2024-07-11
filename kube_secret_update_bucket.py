@@ -34,11 +34,14 @@ def list_objects(bucketname):
       if file ==  "":
         continue
       ssl_list.append(file)
+    print(ssl_list)
     return ssl_list
 
 def cert_bucket():
     global bucketname
     bucketname = get_bucket_name()
+    print ("Bucket Name")
+    print(bucketname)
     ssl_list = list_objects(bucketname)
     return ssl_list
 
@@ -117,8 +120,12 @@ def validate_modulus(key_path, cert_path, temp_dir):
 
 def validate_dates(cert_path, temp_dir, password=None):
     passin_option = f" -passin pass:{password}" if password else ""
+    #start_date_command = f"openssl x509 -noout -startdate -in {cert_path}{passin_option}"
+    #end_date_command = f"openssl x509 -noout -enddate -in {cert_path}{passin_option}"
     start_date_command = f"openssl x509 -noout -startdate -in {cert_path}{passin_option}"
     end_date_command = f"openssl x509 -noout -enddate -in {cert_path}{passin_option}"
+    print(start_date_command)
+    print(end_date_command)
     
     return_code_start, start_date_str, _ = execute_openssl_command(start_date_command, temp_dir)
     return_code_end, end_date_str, _ = execute_openssl_command(end_date_command, temp_dir)
@@ -133,6 +140,30 @@ def validate_dates(cert_path, temp_dir, password=None):
     end_date = datetime.strptime(end_date_str, '%b %d %H:%M:%S %Y %Z')
     
     return start_date, end_date
+"""
+def backup_secret(secret_name, namespace):
+    load_config()
+    v1 = client.CoreV1Api()
+    old_secret = v1.read_namespaced_secret(secret_name, namespace)
+
+    # Create a copy of the old secret under a different name
+    backup_secret_name = f"{secret_name}-backup-{datetime.now().strftime('%Y%m%d%H%M%S')}"
+    backup_secret = client.V1Secret(
+        metadata=client.V1ObjectMeta(name=backup_secret_name),
+        type=old_secret.type,
+        data=old_secret.data
+    )
+    v1.create_namespaced_secret(namespace, backup_secret)
+
+    # Generate bash command string to restore the backed up secret
+    restore_command = (
+        f"kubectl get secret {backup_secret_name} -n {namespace} -o yaml > {backup_secret_name}.secret.yaml; "
+        f"kubectl delete secret {secret_name} -n {namespace}; "
+        f"kubectl apply -f {backup_secret_name}.secret.yaml;"
+    )
+
+    return restore_command
+"""
 
 def backup_secret(secret_name, namespace):
     load_config()
@@ -140,6 +171,7 @@ def backup_secret(secret_name, namespace):
     v1 = client.CoreV1Api()
     backup_secret_name = f"{secret_name}-backup-{datetime.now().strftime('%Y%m%d%H%M%S')}"
     existing_secret = v1.read_namespaced_secret(secret_name, namespace)
+    print (existing_secret)
    
     return backup_secret_name
 
@@ -165,10 +197,13 @@ def create_and_replace_tls_secret(key_path, cert_path, secret_name, namespace):
 #def update_secret_bucket(secret_name, pfx_file, password_required, password):
 def update_secret_bucket(certfile,secretname,password):
     'Update the specified Kubernetes secret with PFX file uplodated to GCP bucket'
+    print("here")
     certfilepath = "ssl-certs/{}".format(certfile)
     temp_dir = create_temp_directory(certfile)
     bucket_name = get_bucket_name()
+    print(temp_dir)
     destination_for_cert = "{}/{}".format(temp_dir,certfile)
+    print(destination_for_cert)
     download_blob(bucket_name, certfilepath, destination_for_cert)
     f = open(destination_for_cert, "rb")
     file_size = os.stat(destination_for_cert).st_size
