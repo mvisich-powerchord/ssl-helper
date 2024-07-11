@@ -140,7 +140,7 @@ def validate_dates(cert_path, temp_dir, password=None):
     end_date = datetime.strptime(end_date_str, '%b %d %H:%M:%S %Y %Z')
     
     return start_date, end_date
-"""
+
 def backup_secret(secret_name, namespace):
     load_config()
     v1 = client.CoreV1Api()
@@ -165,15 +165,21 @@ def backup_secret(secret_name, namespace):
     return restore_command
 """
 
+
 def backup_secret(secret_name, namespace):
     load_config()
     temp_dir = "/tmp/"
     v1 = client.CoreV1Api()
     backup_secret_name = f"{secret_name}-backup-{datetime.now().strftime('%Y%m%d%H%M%S')}"
+
+    
+
     existing_secret = v1.read_namespaced_secret(secret_name, namespace)
     print (existing_secret)
    
     return backup_secret_name
+
+"""
 
 def create_and_replace_tls_secret(key_path, cert_path, secret_name, namespace):
     load_config()
@@ -261,11 +267,6 @@ def update_secret_bucket(certfile,secretname,password):
     click.echo(backup_secret_name)
 
 
-    #click.echo("uploding secret")
-    #print(bucket_name)
-    #print(backup_secret_name)
-    #backup_path = "secret-backup/{}".format(backup_secret_name)
-    #print(backup_path)
 
     click.echo("Creating and replacing TLS secret...")
     response = create_and_replace_tls_secret(key_path, cert_path, secret_name, namespace)
