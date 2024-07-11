@@ -16,7 +16,7 @@ cli.add_command(update_secret, name='update-secret')
 cli.add_command(update_secret_bucket, name='update-secret-bucket')
 #cli.add_command(check_file, name='check-file')
 #cli.add_command(cert_helper, name='cert-helper')
-cli.add_command(cert_validate, name='cert-validate')
+#cli.add_command(cert_validate, name='cert-validate')
 
 
 if __name__ == '__main__':
